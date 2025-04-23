@@ -296,6 +296,7 @@ public:
 
   enum isModifiableLvalueResult {
     MLV_Valid,
+    MLV_LValueWithoutStorage, // Unmodified value is optimized by the compiler as a read-only value.
     MLV_NotObjectType,
     MLV_IncompleteVoidType,
     MLV_DuplicateVectorComponents,
@@ -351,6 +352,7 @@ public:
       CM_RValue, // Not modifiable because it's an rvalue
       CM_Function, // Not modifiable because it's a function; C++ only
       CM_LValueCast, // Same as CM_RValue, but indicates GCC cast-as-lvalue ext
+      CM_LValueWithoutStorage, // Todo
       CM_NoSetterProperty,// Implicit assignment to ObjC property without setter
       CM_ConstQualified,
       CM_ConstQualifiedField,

@@ -684,6 +684,12 @@ static Cl::ModifiableType IsModifiable(ASTContext &Ctx, const Expr *E,
     return Cl::CM_RValue;
 
   // This is the lvalue case.
+  // Unmodified value is optimized as a read-only value by compiler.
+  if (const auto *DRE = dyn_cast<DeclRefExpr>(E))
+    if (const auto *VD = dyn_cast<VarDecl>(DRE->getDecl()))
+      if (!VD->hasLocalStorage())
+        return Cl::CM_LValueWithoutStorage;
+
   // Functions are lvalues in C++, but not modifiable. (C++ [basic.lval]p6)
   if (Ctx.getLangOpts().CPlusPlus && E->getType()->isFunctionType())
     return Cl::CM_Function;
@@ -767,6 +773,7 @@ Expr::isModifiableLvalue(ASTContext &Ctx, SourceLocation *Loc) const {
   case Cl::CM_Function: return MLV_NotObjectType;
   case Cl::CM_LValueCast:
     llvm_unreachable("CM_LValueCast and CL_LValue don't match");
+  case Cl::CM_LValueWithoutStorage: return MLV_LValueWithoutStorage;
   case Cl::CM_NoSetterProperty: return MLV_NoSetterProperty;
   case Cl::CM_ConstQualified: return MLV_ConstQualified;
   case Cl::CM_ConstQualifiedField: return MLV_ConstQualifiedField;

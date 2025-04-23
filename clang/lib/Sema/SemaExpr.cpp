@@ -13776,6 +13776,7 @@ static bool CheckForModifiableLvalue(Expr *E, SourceLocation Loc, Sema &S) {
 
     break;
   case Expr::MLV_ConstAddrSpace:
+  case Expr::MLV_LValueWithoutStorage:
     DiagnoseConstAssignment(S, E, Loc);
     return true;
   case Expr::MLV_ConstQualifiedField:
@@ -20518,8 +20519,9 @@ void Sema::DiagnoseEqualityWithExtraParens(ParenExpr *ParenE) {
 
   if (BinaryOperator *opE = dyn_cast<BinaryOperator>(E))
     if (opE->getOpcode() == BO_EQ &&
-        opE->getLHS()->IgnoreParenImpCasts()->isModifiableLvalue(Context)
-                                                           == Expr::MLV_Valid) {
+        (opE->getLHS()->IgnoreParenImpCasts()->isModifiableLvalue(Context) == Expr::MLV_Valid ||
+         opE->getLHS()->IgnoreParenImpCasts()->isModifiableLvalue(Context) == Expr::MLV_LValueWithoutStorage)
+    ) {
       SourceLocation Loc = opE->getOperatorLoc();
 
       Diag(Loc, diag::warn_equality_with_extra_parens) << E->getSourceRange();

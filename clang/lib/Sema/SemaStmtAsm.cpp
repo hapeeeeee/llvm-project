@@ -350,6 +350,7 @@ StmtResult Sema::ActOnGCCAsmStmt(SourceLocation AsmLoc, bool IsSimple,
         OutputExpr->isModifiableLvalue(Context, /*Loc=*/nullptr);
     switch (IsLV) {
     case Expr::MLV_Valid:
+    case Expr::MLV_LValueWithoutStorage:
       // Cool, this is an lvalue.
       break;
     case Expr::MLV_ArrayType:
