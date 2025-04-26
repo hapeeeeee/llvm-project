@@ -687,7 +687,10 @@ static Cl::ModifiableType IsModifiable(ASTContext &Ctx, const Expr *E,
   // Unmodified value is optimized as a read-only value by compiler.
   if (const auto *DRE = dyn_cast<DeclRefExpr>(E))
     if (const auto *VD = dyn_cast<VarDecl>(DRE->getDecl()))
-      if (!VD->hasLocalStorage())
+      if (!VD->isStaticLocal() 
+          && VD->isLocalVarDecl() 
+          && !VD->hasLocalStorage() 
+          && !VD->hasExternalStorage())
         return Cl::CM_LValueWithoutStorage;
 
   // Functions are lvalues in C++, but not modifiable. (C++ [basic.lval]p6)
